@@ -1,41 +1,21 @@
-import express from "express";
-import mongoose from "mongoose";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import InvoiceList from "./components/InvoiceList";
 
-const app = express();
-app.use(express.json());
+const invoices = [
+  { id: 1, amount: 100, date: "2023-01-01" },
+  { id: 2, amount: 200, date: "2023-01-02" },
+  { id: 3, amount: 300, date: "2023-01-03" },
+];
 
-// Connect to MongoDB
-mongoose
-  .connect("mongodb://localhost:27017/invoicing")
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+const App = () => {
+  return (
+    <div>
+      <h1>Invoice List</h1>
+      <InvoiceList invoices={invoices} />
+    </div>
+  );
+};
 
-// Invoice Schema
-const invoiceSchema = new mongoose.Schema({
-  clientName: String,
-  amount: Number,
-  date: Date,
-  status: String,
-});
-
-const Invoice = mongoose.model("Invoice", invoiceSchema);
-
-// Create Invoice
-app.post("/invoices", async (req, res) => {
-  const invoice = new Invoice(req.body);
-  await invoice.save();
-  res.status(201).send(invoice);
-});
-
-// Get Invoices
-app.get("/invoices", async (req, res) => {
-  const invoices = await Invoice.find();
-  res.send(invoices);
-});
-
-// ... other CRUD operations ...
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
