@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../supabaseClient'; // Import the Supabase client
 
 interface InvoiceFormProps {
     onSubmit: (invoice: { amount: string; date: string }) => void;
@@ -8,11 +9,22 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ onSubmit }) => {
     const [amount, setAmount] = useState<string>('');
     const [date, setDate] = useState<string>('');
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        onSubmit({ amount, date });
-        setAmount('');
-        setDate('');
+        
+        // Store invoice in Supabase
+        const { data, error } = await supabase
+            .from('invoices')
+            .insert([{ amount: parseFloat(amount), date }]);
+
+        if (error) {
+            console.error('Error inserting invoice:', error);
+        } else {
+            console.log('Invoice inserted:', data);
+            onSubmit({ amount, date });
+            setAmount('');
+            setDate('');
+        }
     };
 
     return (
